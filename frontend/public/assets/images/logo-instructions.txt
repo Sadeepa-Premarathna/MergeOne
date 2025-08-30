@@ -1,0 +1,13 @@
+This file should contain the Dairy Licious logo image.
+Please save the provided logo image (the beautiful green circular logo with leaves and "DAIRY LICIOUS" text) as:
+- Format: PNG with transparent background
+- Size: 512x512 pixels (recommended)
+- Name: dairy-licious-logo.png
+- Location: /public/assets/images/dairy-licious-logo.png
+
+The logo will be used in:
+1. Navbar (circular background with white logo)
+2. Footer (white logo)
+3. Mobile drawer header
+
+For now, as a fallback, the app will show a green circular background where the logo should appear.
