@@ -116,9 +116,19 @@ temp.json
 .cache/
 Frontend/.cache/
 Frontend/node_modules/.cache/
+Backend/node_modules/.cache/
 
 # Vite cache
 Frontend/node_modules/.vite/
+
+# Large cache files that exceed GitHub limits
+**/node_modules/.cache/
+**/.cache/
+**/dist/
+**/build/
+
+# Specific large files
+*.pack
 
 # React build
 Frontend/build/
