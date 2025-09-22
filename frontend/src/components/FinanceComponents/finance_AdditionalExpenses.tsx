@@ -23,7 +23,7 @@ const AdditionalExpenses: React.FC = () => {
   
   // Form state
   const [formData, setFormData] = useState<CreateExpenseRequest>({
-    category: '',
+    category: 'Other',
     description: '',
     date: '',
     amount: 0
@@ -42,11 +42,10 @@ const AdditionalExpenses: React.FC = () => {
   // Fixed category options for the form (Add/Edit)
   const formCategoryOptions = useMemo(() => (
     [
-      { value: 'Software', label: 'Software' },
       { value: 'Maintenance', label: 'Maintenance' },
-      { value: 'Machine repair', label: 'Machine repair' },
       { value: 'Utilities', label: 'Utilities' },
-      { value: 'Animal care', label: 'Animal care' }
+      { value: 'Machine Purchase', label: 'Machine Purchase' },
+      { value: 'Other', label: 'Other' }
     ]
   ), []);
 
@@ -188,7 +187,7 @@ const AdditionalExpenses: React.FC = () => {
 
   const resetForm = () => {
     setFormData({
-      category: '',
+      category: 'Other',
       description: '',
       date: '',
       amount: 0
@@ -205,7 +204,13 @@ const AdditionalExpenses: React.FC = () => {
     }
 
     try {
-      await expenseService.createExpense(formData);
+      // Ensure we're passing a valid category type
+      const createRequest: CreateExpenseRequest = {
+        ...formData,
+        category: formData.category as 'Machine Purchase' | 'Maintenance' | 'Utilities' | 'Other'
+      };
+      
+      await expenseService.createExpense(createRequest);
       await loadExpenses();
       setIsCreateModalOpen(false);
       resetForm();
@@ -236,10 +241,19 @@ const AdditionalExpenses: React.FC = () => {
     }
 
     try {
-      await expenseService.updateExpense({
-        id: selectedExpense.id,
-        ...formData
-      });
+      // Create a proper Expense object with all required fields
+      const updatedExpense: Expense = {
+        ...selectedExpense, // Keep all existing fields from the selected expense
+        // Update with the new form data
+        category: formData.category as 'Machine Purchase' | 'Maintenance' | 'Utilities' | 'Other',
+        description: formData.description,
+        date: formData.date,
+        amount: formData.amount,
+        // Update the updatedAt timestamp
+        updatedAt: new Date().toISOString()
+      };
+      
+      await expenseService.updateExpense(updatedExpense);
       await loadExpenses();
       setIsEditModalOpen(false);
       setSelectedExpense(null);

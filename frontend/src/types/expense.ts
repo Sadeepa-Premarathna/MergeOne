@@ -11,7 +11,7 @@ export interface Expense {
 }
 
 export interface CreateExpenseRequest {
-  category: string;
+  category: 'Machine Purchase' | 'Maintenance' | 'Utilities' | 'Other' | '';
   description: string;
   date: string;
   amount: number;

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Calendar, Clock, Users, Download, Upload, Search, Filter, ChevronLeft, ChevronRight, Edit, Check, X, AlertCircle } from 'lucide-react';
-import { AttendanceRecord, Employee } from '../data/mockData';
+import { AttendanceRecord, Employee } from '../../data/mockData';
 import AttendanceCorrectionModal from '../../components/HR/HRAttendanceCorrectionModal';
 import BulkUploadModal from '../../components/HR/HRBulkUploadModal';
 

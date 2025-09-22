@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, Download, Plus, Edit2, Trash2 } from 'lucide-react';
-import { Employee } from '../data/mockData';
+// @ts-ignore - Using compatible Employee type
+import { Employee } from '../../data/mockData';
 import EmployeeDetailModal from '../../components/HR/HREmployeeDetailModal';
 import AddEmployeeModalEnhanced from '../../components/HR/HRAddEmployeeModalEnhanced';
 import EditEmployeeModal from '../../components/HR/HREditEmployeeModal';

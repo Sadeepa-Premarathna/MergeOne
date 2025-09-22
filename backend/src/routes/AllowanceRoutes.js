@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllAllowances, createAllowance, updateAllowance, deleteAllowance } = require('../Controllers/AllowanceController.js');
+const { getAllAllowances, createAllowance, updateAllowance, deleteAllowance } = require('../controllers/AllowanceController.js');
 
 const router = express.Router();
 

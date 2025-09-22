@@ -33,17 +33,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         return;
       }
 
-      // If user is logged in and tries to access login page, redirect to home
+      // If user is logged in and tries to access login page, redirect to admin dashboard
       if (isLoggedIn && location.pathname === '/login') {
-        navigate('/', { replace: true });
+        navigate('/admin', { replace: true });
         return;
       }
 
-      // If user is not logged in and visits root path, redirect to login
-      if (!isLoggedIn && location.pathname === '/') {
-        navigate('/login', { replace: true });
-        return;
-      }
+      // No automatic redirects for admin routes - allow direct access
     };
 
     checkAuth();

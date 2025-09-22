@@ -14,6 +14,7 @@ import Footer from './components/Footer/Footer';
 import FloatingCart from './components/FloatingCart/FloatingCart';
 import Chatbot from './components/Chatbot/Chatbot';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import LandingPage from './pages/LandingPage/LandingPage';
 
 // Pages
 import Home from './pages/Home/Home';
@@ -39,8 +40,8 @@ import InventoryReports from './pages/InventoryPages/InventoryReports.jsx';
 import InventoryOrders from './pages/InventoryPages/InventoryOrders.jsx';
 import InventoryDelivery from './pages/InventoryPages/InventoryDelivery.jsx';
 // Finance & HR apps
-import FinanceApp from './Finance_App';
-import HRApp from './HRApp';
+import FinanceAppWithRouting from './FinanceAppWithRouting';
+import SimpleHRApp from './SimpleHRApp';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -195,40 +196,34 @@ function App() {
           <Router>
             <div className="App">
               <Routes>
+                {/* Landing Page Route - Shows choice between Shop and Admin */}
+                <Route 
+                  path="/" 
+                  element={<LandingPage />} 
+                />
+                
                 {/* Login route - not protected, allows access for non-authenticated users */}
                 <Route 
                   path="/login" 
                   element={<Login />} 
                 />
                 
-                {/* Admin Dashboard as Primary Entry Point - No Navbar/Footer */}
-                <Route 
-                  path="/" 
-                  element={
-                    <ProtectedRoute requireAuth>
-                      <InventoryAdminDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Admin Dashboard alternative route - No Navbar/Footer */}
+                {/* Admin Dashboard route - Direct access without authentication */}
                 <Route 
                   path="/admin" 
-                  element={
-                    <ProtectedRoute requireAuth>
-                      <InventoryAdminDashboard />
-                    </ProtectedRoute>
-                  } 
+                  element={<InventoryAdminDashboard />} 
                 />
                 
-                {/* Management Module Routes - No Navbar/Footer */}
+                {/* Direct admin entry - No authentication required */}
+                <Route 
+                  path="/dashboard" 
+                  element={<InventoryAdminDashboard />} 
+                />
+                
+                {/* Management Module Routes - Direct access without authentication */}
                 <Route
                   path="/app/*"
-                  element={
-                    <ProtectedRoute requireAuth>
-                      <AppLayout />
-                    </ProtectedRoute>
-                  }
+                  element={<AppLayout />}
                 >
                   {/* Inventory nested routes */}
                   <Route index element={<InventoryDashboard />} />
@@ -242,25 +237,17 @@ function App() {
                   <Route path="delivery" element={<InventoryDelivery />} />
                 </Route>
 
-                {/* Finance & HR top-level under /app */}
+                {/* Finance & HR modules with nested routing - Direct access */}
                 <Route
-                  path="/app/finance"
-                  element={
-                    <ProtectedRoute requireAuth>
-                      <FinanceApp />
-                    </ProtectedRoute>
-                  }
+                  path="/app/finance/*"
+                  element={<FinanceAppWithRouting />}
                 />
                 <Route
-                  path="/app/hr"
-                  element={
-                    <ProtectedRoute requireAuth>
-                      <HRApp />
-                    </ProtectedRoute>
-                  }
+                  path="/app/hr/*"
+                  element={<SimpleHRApp />}
                 />
                 
-                {/* E-commerce Shop Routes (Secondary) - With Navbar/Footer */}
+                {/* Customer Shop Routes - Publicly Accessible with Navbar/Footer */}
                 <Route 
                   path="/shop/*" 
                   element={
@@ -268,30 +255,13 @@ function App() {
                       <Navbar />
                       <main style={{ minHeight: 'calc(100vh - 160px)', paddingTop: '120px' }}>
                         <Routes>
-                          <Route 
-                            path="/" 
-                            element={
-                              <ProtectedRoute requireAuth>
-                                <Home />
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/products" 
-                            element={
-                              <ProtectedRoute requireAuth>
-                                <Products />
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/products/:id" 
-                            element={
-                              <ProtectedRoute requireAuth>
-                                <ProductDetails />
-                              </ProtectedRoute>
-                            } 
-                          />
+                          {/* Public shop routes - no authentication required */}
+                          <Route path="/" element={<Home />} />
+                          <Route path="/products" element={<Products />} />
+                          <Route path="/products/:id" element={<ProductDetails />} />
+                          <Route path="/contact" element={<Contact />} />
+                          
+                          {/* Protected routes requiring authentication for checkout/orders */}
                           <Route 
                             path="/cart" 
                             element={
@@ -324,14 +294,6 @@ function App() {
                               </ProtectedRoute>
                             } 
                           />
-                          <Route 
-                            path="/contact" 
-                            element={
-                              <ProtectedRoute requireAuth>
-                                <Contact />
-                              </ProtectedRoute>
-                            } 
-                          />
                         </Routes>
                       </main>
                       <FloatingCart />
@@ -340,6 +302,10 @@ function App() {
                     </>
                   } 
                 />
+                
+                {/* Direct route to shop as default customer experience */}
+                <Route path="/customer" element={<Home />} />
+                <Route path="/store" element={<Home />} />
               </Routes>
               <Toaster 
                 position="top-right"

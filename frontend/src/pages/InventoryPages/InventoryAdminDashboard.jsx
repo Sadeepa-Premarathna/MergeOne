@@ -181,7 +181,8 @@ const AdminDashboard = () => {
               <Link
                 key={index}
                 to={card.path}
-                className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/60 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-2xl transform hover:-translate-y-2"
+                onClick={() => console.log(`Navigating to: ${card.path}`)}
+                className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/60 shadow-lg transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-2xl transform hover:-translate-y-2 cursor-pointer"
               >
                 <div className="text-center relative z-10">
                   <div className={`w-16 h-16 bg-gradient-to-br ${card.color} rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl transition-all duration-300 group-hover:scale-110 shadow-lg group-hover:shadow-xl`}>
