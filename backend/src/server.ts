@@ -121,36 +121,32 @@ app.use('*', (req, res) => {
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  console.error('❌ Error: MONGODB_URI is not defined in environment variables');
-  process.exit(1);
-}
+console.log('🚀 Starting server...');
 
-mongoose.connect(MONGODB_URI, {
-  dbName: process.env.MONGODB_DB || 'dairyshop'
-})
-.then(() => {
-  const conn = mongoose.connection;
-  console.log(`✅ Connected to MongoDB: ${conn.name} on ${conn.host}`);
-  console.log(`🔗 Database: ${conn.db.databaseName}`);
-  
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📚 API Documentation available at http://localhost:${PORT}/health`);
-    console.log(`🌐 Frontend should connect to: http://localhost:${PORT}/api`);
-  });
-})
-.catch((error) => {
-  console.error('❌ MongoDB connection error:', error.message);
-  console.warn('⚠️  Starting server without database connection for development...');
-  
-  // Start server anyway for development
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT} (no database)`);
-    console.log(`📚 API Documentation available at http://localhost:${PORT}/health`);
-    console.log(`🌐 Frontend should connect to: http://localhost:${PORT}/api`);
-    console.log(`💡 Database connection failed - some features may not work`);
-  });
+// Start server immediately with fallback mode
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📚 API Documentation available at http://localhost:${PORT}/health`);
+  console.log(`🌐 Frontend should connect to: http://localhost:${PORT}/api`);
+  console.log(`💡 Running in development mode with API fallbacks`);
 });
+
+// Try to connect to database asynchronously (non-blocking)
+if (MONGODB_URI) {
+  mongoose.connect(MONGODB_URI, {
+    dbName: process.env.MONGODB_DB || 'test'
+  })
+  .then(() => {
+    const conn = mongoose.connection;
+    console.log(`✅ Connected to MongoDB: ${conn.name} on ${conn.host}`);
+    console.log(`� Database: ${conn.db.databaseName}`);
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection error:', error.message);
+    console.warn('⚠️  Server running without database connection - using mock data...');
+  });
+} else {
+  console.warn('⚠️  No MONGODB_URI found - running with mock data only');
+}
 
 export default app;
