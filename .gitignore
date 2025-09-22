@@ -1,0 +1,138 @@
+# Dependencies
+node_modules/
+Frontend/node_modules/
+Backend/node_modules/
+
+# Build outputs
+dist/
+build/
+Frontend/dist/
+Frontend/build/
+Backend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+Frontend/.env
+Backend/.env
+Backend/src/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+Backend/InventoryBackendServer.log
+Backend/src/server.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# VS Code
+.vscode/
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+temp.json
+*.tmp
+*.temp
+
+# Cache directories
+.cache/
+Frontend/.cache/
+Frontend/node_modules/.cache/
+
+# Vite cache
+Frontend/node_modules/.vite/
+
+# React build
+Frontend/build/
+
+# Package lock files (keep package.json but ignore lock files to avoid conflicts)
+package-lock.json
+Frontend/package-lock.json
+Backend/package-lock.json
+
+# Restart triggers
+Backend/.restart_trigger
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Backup files
+*.backup

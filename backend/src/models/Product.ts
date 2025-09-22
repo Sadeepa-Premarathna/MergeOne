@@ -16,6 +16,7 @@ export interface IProduct extends Document {
   rating: number;
   numReviews: number;
   featured: boolean;
+  reorderLevel: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -94,6 +95,12 @@ const productSchema = new Schema<IProduct>({
   featured: {
     type: Boolean,
     default: false
+  },
+  reorderLevel: {
+    type: Number,
+    required: true,
+    default: 10,
+    min: [0, 'Reorder level cannot be negative']
   }
 }, {
   timestamps: true

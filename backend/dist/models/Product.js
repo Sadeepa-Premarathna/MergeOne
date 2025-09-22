@@ -108,6 +108,12 @@ const productSchema = new mongoose_1.Schema({
     featured: {
         type: Boolean,
         default: false
+    },
+    reorderLevel: {
+        type: Number,
+        required: true,
+        default: 10,
+        min: [0, 'Reorder level cannot be negative']
     }
 }, {
     timestamps: true

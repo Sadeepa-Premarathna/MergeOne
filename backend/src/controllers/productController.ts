@@ -1,249 +1,168 @@
-import { Request, Response } from 'express';
-import Product, { IProduct } from '../models/Product';
+import { Request, Response, NextFunction } from 'express';
+import Product from '../models/Product';
 
-// Get all products with filtering and pagination
-export const getProducts = async (req: Request, res: Response) => {
+// GET list with filters: q, category, featured
+export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 12;
-    const skip = (page - 1) * limit;
-
-    // Build filter object
+    const { q, category, featured, limit = 10, page = 1 } = req.query;
     const filter: any = {};
     
-    if (req.query.category) {
-      filter.category = req.query.category;
+    if (q) {
+      filter.$or = [
+        { name: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { brand: { $regex: q, $options: 'i' } },
+      ];
     }
+    if (category && category !== 'all') filter.category = category;
+    if (featured !== undefined) filter.featured = featured === 'true';
     
-    if (req.query.featured) {
-      filter.featured = req.query.featured === 'true';
-    }
-    
-    if (req.query.isOrganic) {
-      filter.isOrganic = req.query.isOrganic === 'true';
-    }
-    
-    if (req.query.minPrice || req.query.maxPrice) {
-      filter.price = {};
-      if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice as string);
-      if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice as string);
-    }
-    
-    if (req.query.search) {
-      filter.$text = { $search: req.query.search };
-    }
-
-    // Sort options
-    let sortOption: any = { createdAt: -1 };
-    if (req.query.sortBy) {
-      switch (req.query.sortBy) {
-        case 'price-low':
-          sortOption = { price: 1 };
-          break;
-        case 'price-high':
-          sortOption = { price: -1 };
-          break;
-        case 'rating':
-          sortOption = { rating: -1 };
-          break;
-        case 'name':
-          sortOption = { name: 1 };
-          break;
-      }
-    }
-
+    const skip = (Number(page) - 1) * Number(limit);
     const products = await Product.find(filter)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit);
-
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .skip(skip);
+      
     const total = await Product.countDocuments(filter);
-    const totalPages = Math.ceil(total / limit);
-
+    
     res.json({
       products,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalProducts: total,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
       }
     });
-  } catch (error) {
-    console.error('Get products error:', error);
-    res.status(500).json({ message: 'Server error while fetching products' });
+  } catch (err) {
+    next(err);
   }
 };
 
-// Get featured products
-export const getFeaturedProducts = async (req: Request, res: Response) => {
+export const getFeaturedProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const products = await Product.find({ featured: true })
       .sort({ rating: -1 })
       .limit(8);
-
     res.json(products);
-  } catch (error) {
-    console.error('Get featured products error:', error);
-    res.status(500).json({ message: 'Server error while fetching featured products' });
+  } catch (err) {
+    next(err);
   }
 };
 
-// Get single product
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findById(req.params.id);
-    
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
+    if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
-  } catch (error) {
-    console.error('Get product by ID error:', error);
-    res.status(500).json({ message: 'Server error while fetching product' });
+  } catch (err) {
+    next(err);
   }
 };
 
-// Get products by category
-export const getProductsByCategory = async (req: Request, res: Response) => {
+export const getProductsByCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { category } = req.params;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 12;
-    const skip = (page - 1) * limit;
-
+    const { limit = 12 } = req.query;
+    
     const products = await Product.find({ category })
       .sort({ rating: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Product.countDocuments({ category });
-    const totalPages = Math.ceil(total / limit);
-
-    res.json({
-      products,
-      category,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalProducts: total,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    });
-  } catch (error) {
-    console.error('Get products by category error:', error);
-    res.status(500).json({ message: 'Server error while fetching products by category' });
+      .limit(Number(limit));
+    res.json(products);
+  } catch (err) {
+    next(err);
   }
 };
 
-// Search products
-export const searchProducts = async (req: Request, res: Response) => {
+export const searchProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { q } = req.query;
+    const { q, minPrice, maxPrice, category, sortBy = 'relevance' } = req.query;
     
-    if (!q) {
-      return res.status(400).json({ message: 'Search query is required' });
+    const filter: any = {};
+    
+    if (q) {
+      filter.$text = { $search: q as string };
     }
-
-    const products = await Product.find({
-      $or: [
-        { name: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } },
-        { brand: { $regex: q, $options: 'i' } },
-        { category: { $regex: q, $options: 'i' } }
-      ]
-    }).sort({ rating: -1 });
-
-    res.json({
-      products,
-      searchQuery: q,
-      resultsCount: products.length
-    });
-  } catch (error) {
-    console.error('Search products error:', error);
-    res.status(500).json({ message: 'Server error while searching products' });
+    
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+    
+    if (category && category !== 'all') {
+      filter.category = category;
+    }
+    
+    let sortOption: any = {};
+    switch (sortBy) {
+      case 'price_low':
+        sortOption = { price: 1 };
+        break;
+      case 'price_high':
+        sortOption = { price: -1 };
+        break;
+      case 'rating':
+        sortOption = { rating: -1 };
+        break;
+      case 'newest':
+        sortOption = { createdAt: -1 };
+        break;
+      default:
+        sortOption = q ? { score: { $meta: 'textScore' } } : { createdAt: -1 };
+    }
+    
+    const products = await Product.find(filter).sort(sortOption);
+    res.json(products);
+  } catch (err) {
+    next(err);
   }
 };
 
-// Get product categories
-export const getCategories = async (req: Request, res: Response) => {
+export const getCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const categories = await Product.distinct('category');
-    
     const categoriesWithCount = await Promise.all(
       categories.map(async (category) => {
         const count = await Product.countDocuments({ category });
         return { name: category, count };
       })
     );
-
     res.json(categoriesWithCount);
-  } catch (error) {
-    console.error('Get categories error:', error);
-    res.status(500).json({ message: 'Server error while fetching categories' });
+  } catch (err) {
+    next(err);
   }
 };
 
-// Admin: Create product
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product = new Product(req.body);
-    await product.save();
-    
-    res.status(201).json({
-      message: 'Product created successfully',
-      product
-    });
-  } catch (error) {
-    console.error('Create product error:', error);
-    res.status(400).json({ 
-      message: 'Error creating product',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    const product = await Product.create(req.body);
+    res.status(201).json(product);
+  } catch (err) {
+    next(err);
   }
 };
 
-// Admin: Update product
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+      req.params.id, 
+      req.body, 
       { new: true, runValidators: true }
     );
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    res.json({
-      message: 'Product updated successfully',
-      product
-    });
-  } catch (error) {
-    console.error('Update product error:', error);
-    res.status(400).json({ 
-      message: 'Error updating product',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    next(err);
   }
 };
 
-// Admin: Delete product
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
+    if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    console.error('Delete product error:', error);
-    res.status(500).json({ message: 'Server error while deleting product' });
+  } catch (err) {
+    next(err);
   }
 };

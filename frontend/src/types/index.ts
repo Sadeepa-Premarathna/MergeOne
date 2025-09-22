@@ -81,3 +81,42 @@ export interface ProductFilters {
   page?: number;
   limit?: number;
 }
+
+// Finance Types
+export interface FinancialData {
+  totalRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  monthlyGrowth: number;
+}
+
+export interface MonthlyData {
+  month: string;
+  revenue: number;
+  expenses: number;
+  profit: number;
+}
+
+export interface ExpenseBreakdown {
+  category: string;
+  amount: number;
+  percentage: number;
+}
+
+export interface Transaction {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+  category: string;
+}
+
+// Navigation Types
+export interface NavigationItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType;
+  path: string;
+  submenu?: NavigationItem[];
+}

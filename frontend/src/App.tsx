@@ -13,6 +13,7 @@ import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import FloatingCart from './components/FloatingCart/FloatingCart';
 import Chatbot from './components/Chatbot/Chatbot';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 // Pages
 import Home from './pages/Home/Home';
@@ -23,6 +24,23 @@ import Checkout from './pages/Checkout/Checkout';
 import OrderTracking from './pages/OrderTracking/OrderTracking';
 import Orders from './pages/Orders/Orders';
 import Contact from './pages/Contact/Contact';
+import Login from './pages/Login/Login';
+
+// Import Inventory Admin Components
+import InventoryAdminDashboard from './pages/InventoryPages/InventoryAdminDashboard';
+// Inventory module layout and pages
+import AppLayout from './components/InventoryComponents/InventoryAppLayoutFixed.jsx';
+import InventoryDashboard from './pages/InventoryPages/InventoryDashboard.jsx';
+import InventoryProducts from './pages/InventoryPages/InventoryProducts.jsx';
+import InventoryInventory from './pages/InventoryPages/InventoryInventory.jsx';
+import InventoryRawMaterials from './pages/InventoryPages/InventoryRawMaterials.jsx';
+import InventoryUsers from './pages/InventoryPages/InventoryUsers.jsx';
+import InventoryReports from './pages/InventoryPages/InventoryReports.jsx';
+import InventoryOrders from './pages/InventoryPages/InventoryOrders.jsx';
+import InventoryDelivery from './pages/InventoryPages/InventoryDelivery.jsx';
+// Finance & HR apps
+import FinanceApp from './Finance_App';
+import HRApp from './HRApp';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -176,22 +194,153 @@ function App() {
         <CartProvider>
           <Router>
             <div className="App">
-              <Navbar />
-              <main style={{ minHeight: 'calc(100vh - 160px)', paddingTop: '120px' }}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/products/:id" element={<ProductDetails />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/orders" element={<Orders />} />
-                  <Route path="/orders/track/:trackingNumber" element={<OrderTracking />} />
-                  <Route path="/contact" element={<Contact />} />
-                </Routes>
-              </main>
-              <FloatingCart />
-              <Chatbot />
-              <Footer />
+              <Routes>
+                {/* Login route - not protected, allows access for non-authenticated users */}
+                <Route 
+                  path="/login" 
+                  element={<Login />} 
+                />
+                
+                {/* Admin Dashboard as Primary Entry Point - No Navbar/Footer */}
+                <Route 
+                  path="/" 
+                  element={
+                    <ProtectedRoute requireAuth>
+                      <InventoryAdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Admin Dashboard alternative route - No Navbar/Footer */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute requireAuth>
+                      <InventoryAdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Management Module Routes - No Navbar/Footer */}
+                <Route
+                  path="/app/*"
+                  element={
+                    <ProtectedRoute requireAuth>
+                      <AppLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  {/* Inventory nested routes */}
+                  <Route index element={<InventoryDashboard />} />
+                  <Route path="dashboard" element={<InventoryDashboard />} />
+                  <Route path="raw-materials" element={<InventoryRawMaterials />} />
+                  <Route path="products" element={<InventoryProducts />} />
+                  <Route path="inventory" element={<InventoryInventory />} />
+                  <Route path="users" element={<InventoryUsers />} />
+                  <Route path="reports" element={<InventoryReports />} />
+                  <Route path="orders" element={<InventoryOrders />} />
+                  <Route path="delivery" element={<InventoryDelivery />} />
+                </Route>
+
+                {/* Finance & HR top-level under /app */}
+                <Route
+                  path="/app/finance"
+                  element={
+                    <ProtectedRoute requireAuth>
+                      <FinanceApp />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/hr"
+                  element={
+                    <ProtectedRoute requireAuth>
+                      <HRApp />
+                    </ProtectedRoute>
+                  }
+                />
+                
+                {/* E-commerce Shop Routes (Secondary) - With Navbar/Footer */}
+                <Route 
+                  path="/shop/*" 
+                  element={
+                    <>
+                      <Navbar />
+                      <main style={{ minHeight: 'calc(100vh - 160px)', paddingTop: '120px' }}>
+                        <Routes>
+                          <Route 
+                            path="/" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <Home />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/products" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <Products />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/products/:id" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <ProductDetails />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/cart" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <Cart />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/checkout" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <Checkout />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/orders" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <Orders />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/orders/track/:trackingNumber" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <OrderTracking />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/contact" 
+                            element={
+                              <ProtectedRoute requireAuth>
+                                <Contact />
+                              </ProtectedRoute>
+                            } 
+                          />
+                        </Routes>
+                      </main>
+                      <FloatingCart />
+                      <Chatbot />
+                      <Footer />
+                    </>
+                  } 
+                />
+              </Routes>
               <Toaster 
                 position="top-right"
                 toastOptions={{

@@ -81,16 +81,17 @@ const Navbar: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/shop/products?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
     }
   };
 
   const menuItems = [
-    { label: 'Home', path: '/', icon: <Home /> },
-    { label: 'Products', path: '/products', icon: <Inventory /> },
-    { label: 'Orders', path: '/orders', icon: <LocalOffer /> },
-    { label: 'Contact', path: '/contact', icon: <ContactMail /> },
+    { label: 'Admin Dashboard', path: '/', icon: <Home /> },
+    { label: 'Shop', path: '/shop', icon: <Inventory /> },
+    { label: 'Products', path: '/shop/products', icon: <Inventory /> },
+    { label: 'Orders', path: '/shop/orders', icon: <LocalOffer /> },
+    { label: 'Contact', path: '/shop/contact', icon: <ContactMail /> },
   ];
 
   // Mobile drawer content

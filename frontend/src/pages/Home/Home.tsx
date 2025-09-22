@@ -231,13 +231,16 @@ const Home: React.FC = () => {
               >
                 <Box
                   component="img"
-                  src="https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=600"
-                  alt="Dairy Licious Products"
+                  src="/assets/images/dairy-licious-logo.svg"
+                  alt="Dairy Licious Logo"
                   sx={{
                     width: '100%',
+                    maxWidth: 500,
                     height: 'auto',
                     borderRadius: 4,
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                    filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.1))',
+                    mx: 'auto',
+                    display: 'block',
                   }}
                 />
               </motion.div>

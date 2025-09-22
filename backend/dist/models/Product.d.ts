@@ -15,6 +15,7 @@ export interface IProduct extends Document {
     rating: number;
     numReviews: number;
     featured: boolean;
+    reorderLevel: number;
     createdAt: Date;
     updatedAt: Date;
 }

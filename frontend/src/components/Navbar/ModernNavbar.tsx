@@ -38,8 +38,9 @@ import {
   TrendingUp,
   LocalOffer,
   Nature,
+  ExitToApp,
 } from '@mui/icons-material';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 
@@ -48,12 +49,33 @@ const Navbar: React.FC = () => {
   const [cartAnchorEl, setCartAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // Mock user data - in real app this would come from auth context
-  const [currentUser] = useState({ name: 'John Doe', email: 'john@example.com' });
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { state } = useCart();
+
+  // Check for logged in user
+  useEffect(() => {
+    const userData = localStorage.getItem('dairyLiciousUser');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('dairyLiciousUser');
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('dairyLiciousUser');
+    setCurrentUser(null);
+    handleMenuClose();
+    navigate('/login'); // Redirect to login page after logout
+  };
 
   // Handle scroll effect
   useEffect(() => {
@@ -321,7 +343,7 @@ const Navbar: React.FC = () => {
               </Box>
             )}
 
-            {/* Welcome Message */}
+            {/* Welcome Message / Login Button */}
             <Box
               sx={{
                 display: { xs: 'none', md: 'flex' },
@@ -329,30 +351,54 @@ const Navbar: React.FC = () => {
                 mx: 3,
               }}
             >
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontWeight: 500,
-                    color: 'text.primary',
-                    background: 'linear-gradient(45deg, #2E7D32, #4CAF50)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                  }}
+              {currentUser ? (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <Person sx={{ color: 'primary.main' }} />
-                  Welcome, {currentUser.name}!
-                </Typography>
-              </motion.div>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontFamily: 'Poppins, sans-serif',
+                      fontWeight: 500,
+                      color: 'text.primary',
+                      background: 'linear-gradient(45deg, #2E7D32, #4CAF50)',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                    }}
+                  >
+                    <Person sx={{ color: 'primary.main' }} />
+                    Welcome, {currentUser?.email?.split('@')[0] || 'User'}!
+                  </Typography>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Button
+                    component={Link}
+                    to="/login"
+                    variant="contained"
+                    sx={{
+                      background: 'linear-gradient(45deg, #4CAF50, #66BB6A)',
+                      '&:hover': {
+                        background: 'linear-gradient(45deg, #2E7D32, #4CAF50)',
+                      },
+                      borderRadius: 3,
+                      px: 3,
+                    }}
+                  >
+                    Login
+                  </Button>
+                </motion.div>
+              )}
             </Box>
 
             {/* Right Actions */}
@@ -404,28 +450,30 @@ const Navbar: React.FC = () => {
               </motion.div>
 
               {/* User Menu */}
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <IconButton
-                  onClick={handleMenuOpen}
-                  sx={{
-                    p: 0,
-                    ml: 1,
-                  }}
-                >
-                  <Avatar
+              {currentUser && (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <IconButton
+                    onClick={handleMenuOpen}
                     sx={{
-                      width: 40,
-                      height: 40,
-                      background: 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)',
-                      fontSize: 18,
-                      fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 600,
+                      p: 0,
+                      ml: 1,
                     }}
                   >
-                    <Person />
-                  </Avatar>
-                </IconButton>
-              </motion.div>
+                    <Avatar
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        background: 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)',
+                        fontSize: 18,
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Person />
+                    </Avatar>
+                  </IconButton>
+                </motion.div>
+              )}
             </Box>
           </Toolbar>
         </Container>
@@ -630,7 +678,8 @@ const Navbar: React.FC = () => {
           Favorites
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleMenuClose}>
+        <MenuItem onClick={handleLogout}>
+          <ExitToApp sx={{ mr: 2 }} />
           Sign Out
         </MenuItem>
       </Menu>
